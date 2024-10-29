@@ -1,6 +1,7 @@
 use std::{
     fs,
     io::{Read, Seek, SeekFrom, Write},
+    sync::{atomic::AtomicU64, Arc},
 };
 
 use super::{block::Block, page::Page};
@@ -9,6 +10,7 @@ pub struct Manager {
     directory: String,
     blocksize: u64,
     is_new: bool,
+    stats: ManagerStats,
 }
 
 impl Manager {
@@ -23,6 +25,10 @@ impl Manager {
             directory: dir,
             blocksize,
             is_new,
+            stats: ManagerStats {
+                blocks_read: Arc::new(0.into()),
+                blocks_writes: Arc::new(0.into()),
+            },
         }
     }
 
@@ -42,6 +48,7 @@ impl Manager {
         let location = block.num() * self.blocksize;
 
         file.seek(SeekFrom::Start(location))?;
+        self.stats.increment_blocks_read();
         file.read(p.contents()).map(|_| ())
     }
 
@@ -51,6 +58,7 @@ impl Manager {
         let location = block.num() * self.blocksize;
 
         file.seek(SeekFrom::Start(location))?;
+        self.stats.increment_blocks_writes();
 
         file.write(p.contents()).map(|_| ())
     }
@@ -71,6 +79,7 @@ impl Manager {
         let mut file = self.get_file(file)?;
 
         file.seek(SeekFrom::Start(self.blocksize * block.num()))?;
+        self.stats.increment_blocks_writes();
 
         file.write(&data).map(|_| ())
     }
@@ -81,5 +90,22 @@ impl Manager {
 
     pub fn blocksize(&self) -> u64 {
         self.blocksize
+    }
+}
+
+struct ManagerStats {
+    blocks_read: Arc<AtomicU64>,
+    blocks_writes: Arc<AtomicU64>,
+}
+
+impl ManagerStats {
+    fn increment_blocks_read(&self) {
+        self.blocks_read
+            .fetch_add(1, std::sync::atomic::Ordering::SeqCst);
+    }
+
+    fn increment_blocks_writes(&self) {
+        self.blocks_writes
+            .fetch_add(1, std::sync::atomic::Ordering::SeqCst);
     }
 }
