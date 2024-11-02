@@ -60,7 +60,7 @@ impl Manager {
         file.seek(SeekFrom::Start(location))?;
         self.stats.increment_blocks_writes();
 
-        file.write(p.contents()).map(|_| ())
+        file.write_all(p.contents()).map(|_| ())
     }
 
     pub fn size(&self, file: &str) -> std::io::Result<u64> {
@@ -70,18 +70,18 @@ impl Manager {
         Ok(total_size / self.blocksize)
     }
 
-    pub fn append(&self, file: &str) -> std::io::Result<()> {
+    pub fn append(&self, file: &str) -> std::io::Result<Block> {
         let blknum = self.size(file)?;
 
         let block = Block::new(file.to_string(), blknum);
-        let data = Vec::<u8>::with_capacity(self.blocksize as usize);
+        let data = vec![0; self.blocksize as usize];
 
         let mut file = self.get_file(file)?;
 
         file.seek(SeekFrom::Start(self.blocksize * block.num()))?;
         self.stats.increment_blocks_writes();
 
-        file.write(&data).map(|_| ())
+        file.write(&data).map(|_| block)
     }
 
     pub fn is_new(&self) -> bool {

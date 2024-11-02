@@ -13,7 +13,7 @@ impl Page {
         }
     }
 
-    pub fn new_with_data(data: &[u8]) -> Self {
+    pub fn new_with_data(data: Vec<u8>) -> Self {
         Self { blob: data.into() }
     }
 

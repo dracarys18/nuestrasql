@@ -13,8 +13,9 @@ mod tests {
             DBServerOptions::default()
                 .directory("db".to_string())
                 .block_size(400),
-        );
-        let fm = db.file_manager;
+        )
+        .unwrap();
+        let fm = db.file_manager();
 
         let blk = Block::new("testfile".to_string(), 2);
         let mut p1 = Page::new(fm.blocksize());

@@ -1,4 +1,4 @@
-#[derive(Eq, PartialEq, Hash)]
+#[derive(Eq, PartialEq, Hash, Clone)]
 pub struct Block {
     filename: String,
     num: u64,
