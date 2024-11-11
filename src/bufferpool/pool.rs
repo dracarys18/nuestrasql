@@ -24,7 +24,7 @@ pub struct BufferPoolManager {
 }
 
 impl BufferPoolManager {
-    /// Time in miliseconds which the client can wait for max
+    /// Time in milliseconds which the client can wait for max
     const MAX_TIME: u64 = 10000;
 
     pub fn new(fm: Arc<Manager>, lm: Arc<Mutex<LogManager>>, buffs: u32) -> Self {
@@ -49,7 +49,7 @@ impl BufferPoolManager {
     /// Flush all the buffers that is changed by the current txn
     pub fn flush_all(&mut self, txnum: i32) -> std::io::Result<()> {
         for buf in &mut self.bufferpool {
-            if buf.modifiying_tx() == txnum {
+            if buf.modifying_tx() == txnum {
                 buf.flush()?;
             }
         }

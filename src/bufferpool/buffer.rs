@@ -73,7 +73,7 @@ impl Buffer {
         self.pins > 0
     }
 
-    pub fn modifiying_tx(&self) -> i32 {
+    pub fn modifying_tx(&self) -> i32 {
         self.txnum
     }
 
