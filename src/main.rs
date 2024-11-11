@@ -1,5 +1,6 @@
-mod disk;
-mod log;
+pub mod bufferpool;
+pub mod disk;
+pub mod log;
 pub mod server;
 
 fn main() {

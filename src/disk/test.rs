@@ -12,7 +12,8 @@ mod tests {
         let db = DBServer::new_with_params(
             DBServerOptions::default()
                 .directory("db".to_string())
-                .block_size(400),
+                .block_size(400)
+                .pool_size(8),
         )
         .unwrap();
         let fm = db.file_manager();
