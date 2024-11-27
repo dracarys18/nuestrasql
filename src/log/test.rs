@@ -35,7 +35,7 @@ mod tests {
         let iter = lm.lock().unwrap().iter().unwrap();
         for (rec, exp) in zip(iter, expected) {
             let mut p = Page::new_with_data(rec);
-            let s = p.get_string(0).unwrap();
+            let s = p.get_string(0);
             let npos = Page::max_len(s.len());
             let val = p.get_int(npos);
 

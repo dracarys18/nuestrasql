@@ -38,7 +38,7 @@ mod tests {
         assert_eq!(pos2, 105);
         assert_eq!(p2.get_int(pos2), 345);
         assert_eq!(pos1, 88);
-        assert_eq!(p2.get_string(pos1).unwrap(), "abcdefghijklm");
+        assert_eq!(p2.get_string(pos1), "abcdefghijklm");
         bm.unpin(b2);
 
         fs::remove_dir_all("bufftest").unwrap();

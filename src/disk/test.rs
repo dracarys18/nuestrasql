@@ -33,7 +33,7 @@ mod tests {
         assert_eq!(105, pos2);
         assert_eq!(345, p2.get_int(pos2));
         assert_eq!(88, pos1);
-        assert_eq!("abcdefghijklm", p2.get_string(pos1).unwrap());
+        assert_eq!("abcdefghijklm", p2.get_string(pos1));
 
         fs::remove_dir_all("db").unwrap();
     }

@@ -1,6 +1,7 @@
 use crate::{
     disk::{block::Block, manager::Manager, page::Page},
     log::manager::LogManager,
+    utils::safe_lock::SafeLock,
 };
 use std::sync::{Arc, Mutex};
 
@@ -69,7 +70,6 @@ impl Buffer {
     }
 
     pub fn is_pinned(&self) -> bool {
-        println!("pinned? {}", self.pins);
         self.pins > 0
     }
 
@@ -96,10 +96,7 @@ impl Buffer {
     /// Page into disk and resets the txnum to -1
     pub fn flush(&mut self) -> std::io::Result<()> {
         if self.txnum >= 0 {
-            self.log_manager
-                .lock()
-                .map_err(|err| std::io::Error::other(err.to_string()))?
-                .flush(self.lsn as u32)?;
+            self.log_manager.safe_lock().flush(self.lsn as u32)?;
 
             let block_clone = self.block.clone();
 

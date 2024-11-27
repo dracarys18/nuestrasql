@@ -54,7 +54,7 @@ impl AsRef<[u8]> for SimpleBytesCursor {
 }
 
 impl From<Vec<u8>> for SimpleBytesCursor {
-    fn from(value: Vec<u8>) -> Self {
+    fn from(mut value: Vec<u8>) -> Self {
         Self {
             pos: 0,
             data: value,

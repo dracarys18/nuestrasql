@@ -42,10 +42,11 @@ impl Page {
         self.blob.set_slice(data)
     }
 
-    pub fn get_string(&mut self, offset: usize) -> Result<String, std::string::FromUtf8Error> {
+    pub fn get_string(&mut self, offset: usize) -> String {
         let bytes = self.get_bytes(offset);
 
-        String::from_utf8(bytes.to_vec())
+        // Panic Safety: This will not fail as we wont write a non utf8 character
+        String::from_utf8(bytes.to_vec()).expect("Failed to decode utf8 characters")
     }
 
     pub fn set_string(&mut self, offset: usize, data: String) {
