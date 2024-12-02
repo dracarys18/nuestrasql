@@ -74,7 +74,7 @@ impl Transactions {
     pub fn commit(&mut self) -> DbResult<()> {
         self.recovery_mgr.commit()?;
 
-        println!("transaction {} commited", self.txnum);
+        println!("transaction {} committed", self.txnum);
         self.concurrency.release()?;
 
         self.buffer.unpin_all()?;

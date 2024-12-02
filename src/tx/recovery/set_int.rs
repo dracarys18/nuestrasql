@@ -15,18 +15,18 @@ pub struct SetIntRecord {
 
 impl SetIntRecord {
     pub fn new(mut p: Page) -> Self {
-        let tpos = 4;
-        let txnum = p.get_int(tpos);
-        let fpos = tpos + 4;
+        let txnum_pos = 4;
+        let txnum = p.get_int(txnum_pos);
+        let file_name_pos = txnum_pos + 4;
 
-        let file_name = p.get_string(fpos);
-        let bpos = fpos + Page::max_len(file_name.len());
-        let blk_num = p.get_int(bpos);
+        let file_name = p.get_string(file_name_pos);
+        let blk_num_pos = file_name_pos + Page::max_len(file_name.len());
+        let blk_num = p.get_int(blk_num_pos);
 
-        let opos = bpos + 4;
-        let offset = p.get_int(opos);
-        let vpos = opos + 4;
-        let val = p.get_int(vpos);
+        let offset_pos = blk_num_pos + 4;
+        let offset = p.get_int(offset_pos);
+        let value_pos = offset_pos + 4;
+        let val = p.get_int(value_pos);
 
         Self {
             txnum,
@@ -43,20 +43,20 @@ impl SetIntRecord {
         offset: u32,
         val: i32,
     ) -> std::io::Result<u32> {
-        let trpos = 4;
-        let fpos = trpos + 4;
-        let bpos = fpos + Page::max_len(block.filename().len());
-        let opos = bpos + 4;
-        let vpos = opos + 4;
+        let txnum_pos = 4;
+        let filename_pos = txnum_pos + 4;
+        let blknum_pos = filename_pos + Page::max_len(block.filename().len());
+        let offset_pos = blknum_pos + 4;
+        let value_pos = offset_pos + 4;
 
-        let mut page = Page::new((vpos + 4) as u64);
+        let mut page = Page::new((value_pos + 4) as u64);
 
         page.set_int(0, LogOperation::SetInt as i32);
-        page.set_int(trpos, tx_num);
-        page.set_string(fpos, block.filename().to_string());
-        page.set_int(bpos, block.num() as i32);
-        page.set_int(opos, offset as i32);
-        page.set_int(vpos, val);
+        page.set_int(txnum_pos, tx_num);
+        page.set_string(filename_pos, block.filename().to_string());
+        page.set_int(blknum_pos, block.num() as i32);
+        page.set_int(offset_pos, offset as i32);
+        page.set_int(value_pos, val);
 
         lm.safe_lock().append(page.contents())
     }

@@ -9,9 +9,9 @@ pub struct CommitLog {
 
 impl CommitLog {
     pub fn new(mut page: Page) -> Self {
-        let tpos = 4;
+        let txnum_pos = 4;
         Self {
-            txnum: page.get_int(tpos),
+            txnum: page.get_int(txnum_pos),
         }
     }
 

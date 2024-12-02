@@ -2,7 +2,7 @@
 pub enum DbError {
     #[error("Failed to acquire lock, Lock timeout exceeded")]
     LockAborted,
-    #[error("IO error occured {0:?}")]
+    #[error("IO error occurred {0:?}")]
     IoError(#[from] std::io::Error),
     #[error("Value from Option was invalid")]
     InvalidValue,

@@ -157,7 +157,7 @@ impl RecoveryManager {
     }
 
     /// Iterates over the log file with pointer at the end and moving
-    /// towards the begining of the file. All the transactions are logged with
+    /// towards the beginning of the file. All the transactions are logged with
     /// `Start` marker so the iterator keeps iterating until the marker is found
     /// and undoes whatever that was done
     fn do_rollback(&mut self) -> crate::error::DbResult<()> {
@@ -187,10 +187,10 @@ impl RecoveryManager {
     }
 
     /// Iterates over the log file with pointer at the end and moving
-    /// towards the begining of the file. All the recovery operation is marked
+    /// towards the beginning of the file. All the recovery operation is marked
     /// with `Checkpoint` marker so once the checkpoint is found it comes out of the loop
     ///
-    /// If the Transactions are not commited or rolled back it reverses the change
+    /// If the Transactions are not committed or rolled back it reverses the change
     fn do_recover(&mut self) -> crate::error::DbResult<()> {
         let mut finished_txs = Vec::<i32>::new();
         let iter = self.lm.safe_lock().iter()?;

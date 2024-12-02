@@ -20,7 +20,7 @@ impl LockTable {
     /// When you acquire the shared lock you cannot acquire exclusive lock and vise versa
     ///
     /// We first check if the block already has an exclusive lock if so we park the current
-    /// thread till `MAX_TIME` miliseconds. If the block still has an exclusive lock then
+    /// thread till `MAX_TIME` milliseconds. If the block still has an exclusive lock then
     /// the `LockAborted` error is returned
     pub fn slock(&mut self, blk: &Block) -> DbResult<()> {
         let time = Instant::now();
@@ -40,10 +40,10 @@ impl LockTable {
     }
 
     /// Exclusive lock can only be obtained by a single transaction, any transaction writing the
-    /// data should acquire an exclusive lock before commiting
+    /// data should acquire an exclusive lock before committing
     ///
     /// We first check if there's any Shared lock already for the current block if so we wait till
-    /// `MAX_TIME` miliseconds, If the block is still ShareLocked then the `LockAborted` error is
+    /// `MAX_TIME` milliseconds, If the block is still ShareLocked then the `LockAborted` error is
     /// returned
     pub fn xlock(&mut self, blk: &Block) -> DbResult<()> {
         let time = Instant::now();

@@ -23,7 +23,7 @@ impl std::fmt::Display for LockTypes {
     }
 }
 
-/// Every transaction will have a seperate concurrency manager
+/// Every transaction will have a separate concurrency manager
 ///
 /// It tracks the kind of locks the transaction holds for a block
 #[derive(Clone)]
