@@ -9,7 +9,7 @@ use crate::tx::{
 };
 
 #[repr(i32)]
-#[derive(Eq, PartialEq)]
+#[derive(Eq, PartialEq, Debug)]
 pub enum LogOperation {
     Checkpoint = 1,
     Start = 2,

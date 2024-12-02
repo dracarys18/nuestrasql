@@ -10,6 +10,10 @@ impl SimpleBytesCursor {
         Self { pos: 0, data }
     }
 
+    pub fn len(&self) -> usize {
+        self.data.len()
+    }
+
     pub(super) fn get_i32(&mut self) -> i32 {
         let mut buf: [u8; 4] = [0; 4];
         buf.copy_from_slice(&self.data[self.pos..self.pos + 4]);
@@ -54,7 +58,7 @@ impl AsRef<[u8]> for SimpleBytesCursor {
 }
 
 impl From<Vec<u8>> for SimpleBytesCursor {
-    fn from(mut value: Vec<u8>) -> Self {
+    fn from(value: Vec<u8>) -> Self {
         Self {
             pos: 0,
             data: value,

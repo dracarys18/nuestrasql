@@ -14,7 +14,7 @@ impl StartLog {
         }
     }
 
-    fn write_to_log(lm: Arc<Mutex<LogManager>>, tx_num: i32) -> std::io::Result<u32> {
+    pub fn write_to_log(lm: Arc<Mutex<LogManager>>, tx_num: i32) -> std::io::Result<u32> {
         let mut page = Page::new(2 * 4);
 
         page.set_int(0, LogOperation::Start as i32);

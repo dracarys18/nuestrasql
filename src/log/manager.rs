@@ -106,6 +106,10 @@ pub struct LogManagerIterator {
 }
 
 impl LogManagerIterator {
+    pub fn block_size(&self) -> u64 {
+        self.fm.blocksize()
+    }
+
     pub fn new(fm: Arc<Manager>, block: Block) -> std::io::Result<Self> {
         let mut this = Self {
             fm: fm.clone(),
@@ -130,7 +134,7 @@ impl LogManagerIterator {
 impl Iterator for LogManagerIterator {
     type Item = Vec<u8>;
     fn next(&mut self) -> Option<Self::Item> {
-        if self.current_pos >= self.fm.blocksize() as usize || self.block.num() == 0 {
+        if !(self.current_pos < self.fm.blocksize() as usize || self.block.num() > 0) {
             return None;
         }
 

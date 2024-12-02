@@ -6,3 +6,5 @@ mod rollback;
 mod set_int;
 mod set_string;
 mod start_log;
+mod test;
+

@@ -52,7 +52,7 @@ mod tests {
     }
 
     fn run_a(fm: Arc<Manager>, lm: Arc<Mutex<LogManager>>, bm: Arc<Mutex<BufferPoolManager>>) {
-        let mut tx_a = Transactions::new(fm, bm, lm);
+        let mut tx_a = Transactions::new(fm, bm, lm).unwrap();
         let blk1 = Block::new("testfile".to_string(), 1);
         let blk2 = Block::new("testfile".to_string(), 2);
         tx_a.pin(&blk1).unwrap();
@@ -74,7 +74,7 @@ mod tests {
     }
 
     fn run_b(fm: Arc<Manager>, lm: Arc<Mutex<LogManager>>, bm: Arc<Mutex<BufferPoolManager>>) {
-        let mut tx_b = Transactions::new(fm, bm, lm);
+        let mut tx_b = Transactions::new(fm, bm, lm).unwrap();
         let blk1 = Block::new("testfile".to_string(), 1);
         let blk2 = Block::new("testfile".to_string(), 2);
         tx_b.pin(&blk1).unwrap();
@@ -96,7 +96,7 @@ mod tests {
     }
 
     fn run_c(fm: Arc<Manager>, lm: Arc<Mutex<LogManager>>, bm: Arc<Mutex<BufferPoolManager>>) {
-        let mut tx_c = Transactions::new(fm, bm, lm);
+        let mut tx_c = Transactions::new(fm, bm, lm).unwrap();
         let blk1 = Block::new("testfile".to_string(), 1);
         let blk2 = Block::new("testfile".to_string(), 2);
         tx_c.pin(&blk1).unwrap();

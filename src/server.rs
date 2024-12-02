@@ -1,5 +1,6 @@
 use crate::{
-    bufferpool::pool::BufferPoolManager, disk::manager::Manager, log::manager::LogManager,
+    bufferpool::pool::BufferPoolManager, disk::manager::Manager, error::DbResult,
+    log::manager::LogManager, tx::Transactions,
 };
 use std::sync::{Arc, Mutex};
 
@@ -37,6 +38,14 @@ impl DBServer {
 
     pub fn file_manager(&self) -> Arc<Manager> {
         self.file_manager.clone()
+    }
+
+    pub fn new_tx(&self) -> DbResult<Transactions> {
+        Transactions::new(
+            self.file_manager.clone(),
+            self.buffer_manager.clone(),
+            self.log_manager.clone(),
+        )
     }
 }
 

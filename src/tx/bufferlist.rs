@@ -1,5 +1,5 @@
 use crate::{
-    bufferpool::{buffer::Buffer, pool::BufferPoolManager},
+    bufferpool::pool::BufferPoolManager,
     disk::block::Block,
     error::{DbError, DbResult},
     utils::safe_lock::SafeLock,

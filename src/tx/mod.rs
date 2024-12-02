@@ -2,6 +2,7 @@ mod bufferlist;
 mod concurrency;
 mod locks;
 mod recovery;
+mod test;
 
 use crate::{
     bufferpool::pool::BufferPoolManager,
@@ -34,7 +35,7 @@ impl Transactions {
         fm: Arc<Manager>,
         bm: Arc<Mutex<BufferPoolManager>>,
         lm: Arc<Mutex<LogManager>>,
-    ) -> Self {
+    ) -> DbResult<Self> {
         let txnum = next_transaction_id();
 
         let mut txn = Self {
@@ -42,12 +43,12 @@ impl Transactions {
             concurrency: concurrency::ConcurrencyManager::new(),
             bm: bm.clone(),
             txnum,
-            recovery_mgr: RecoveryManager::new(txnum as i32, lm.clone(), bm.clone()),
+            recovery_mgr: RecoveryManager::new(txnum as i32, lm.clone(), bm.clone())?,
             buffer: bufferlist::BufferList::new(bm.clone()),
         };
 
         txn.init();
-        txn
+        Ok(txn)
     }
 
     pub fn init(&mut self) {
@@ -56,6 +57,10 @@ impl Transactions {
         let recovery_mgr = self.recovery_mgr.clone();
 
         self.recovery_mgr = recovery_mgr.clone().init_transaction(txn.clone());
+    }
+
+    pub fn txnum(&self) -> u32 {
+        self.txnum
     }
 
     pub fn pin(&mut self, block: &Block) -> DbResult<()> {
@@ -67,39 +72,30 @@ impl Transactions {
     }
 
     pub fn commit(&mut self) -> DbResult<()> {
-        let recovery = &mut self.recovery_mgr;
-        recovery.commit()?;
+        self.recovery_mgr.commit()?;
 
         println!("transaction {} commited", self.txnum);
-        let concurrency = &mut self.concurrency;
-        concurrency.release()?;
+        self.concurrency.release()?;
 
-        let buffer = &mut self.buffer;
-        buffer.unpin_all()?;
+        self.buffer.unpin_all()?;
 
         Ok(())
     }
 
     pub fn rollback(&mut self) -> DbResult<()> {
-        let recovery = &mut self.recovery_mgr;
-        recovery.rollback()?;
+        self.recovery_mgr.rollback()?;
 
         println!("transaction {} rolled back", self.txnum);
-        let concurrency = &mut self.concurrency;
-        concurrency.release()?;
+        self.concurrency.release()?;
 
-        let buffer = &mut self.buffer;
-        buffer.unpin_all()?;
+        self.buffer.unpin_all()?;
 
         Ok(())
     }
 
     pub fn recover(&mut self) -> DbResult<()> {
-        let mut bm = self.bm.safe_lock();
-        bm.flush_all(self.txnum as i32)?;
-
-        let recovery = &mut self.recovery_mgr;
-        recovery.recover()?;
+        self.bm.safe_lock().flush_all(self.txnum as i32)?;
+        self.recovery_mgr.recover()?;
 
         Ok(())
     }

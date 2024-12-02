@@ -51,7 +51,7 @@ impl SetIntRecord {
 
         let mut page = Page::new((vpos + 4) as u64);
 
-        page.set_int(0, LogOperation::SetString as i32);
+        page.set_int(0, LogOperation::SetInt as i32);
         page.set_int(trpos, tx_num);
         page.set_string(fpos, block.filename().to_string());
         page.set_int(bpos, block.num() as i32);
