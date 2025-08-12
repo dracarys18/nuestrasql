@@ -1,3 +1,5 @@
+use crate::consts::INTEGER_BYTES;
+
 pub(super) struct SimpleBytesCursor {
     pos: usize,
     data: Vec<u8>,
@@ -15,10 +17,10 @@ impl SimpleBytesCursor {
     }
 
     pub(super) fn get_i32(&mut self) -> i32 {
-        let mut buf: [u8; 4] = [0; 4];
-        buf.copy_from_slice(&self.data[self.pos..self.pos + 4]);
+        let mut buf: [u8; INTEGER_BYTES] = [0; INTEGER_BYTES];
+        buf.copy_from_slice(&self.data[self.pos..self.pos + INTEGER_BYTES]);
 
-        self.pos += 4;
+        self.pos += INTEGER_BYTES;
 
         i32::from_be_bytes(buf)
     }
@@ -26,10 +28,10 @@ impl SimpleBytesCursor {
     pub(super) fn set_i32(&mut self, val: i32) {
         let bytes = val.to_be_bytes();
 
-        let buf = &mut self.data[self.pos..self.pos + 4];
+        let buf = &mut self.data[self.pos..self.pos + INTEGER_BYTES];
 
         buf.copy_from_slice(&bytes);
-        self.pos += 4;
+        self.pos += INTEGER_BYTES;
     }
 
     pub(super) fn set_slice(&mut self, data: &[u8]) {

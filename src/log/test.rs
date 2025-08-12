@@ -39,7 +39,7 @@ mod tests {
             let npos = Page::max_len(s.len());
             let val = p.get_int(npos);
 
-            assert_eq!(format!("record{}", exp), s);
+            assert_eq!(format!("record{exp}"), s);
             assert_eq!(exp + 100, val);
         }
     }

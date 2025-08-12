@@ -1,4 +1,5 @@
 use crate::{
+    consts::INTEGER_BYTES,
     disk::{block::Block, page::Page},
     error::DbResult,
     log::manager::LogManager,
@@ -28,17 +29,17 @@ pub struct SetStringRecord {
 
 impl SetStringRecord {
     pub fn new(mut p: Page) -> Self {
-        let txnum_pos = 4;
+        let txnum_pos = INTEGER_BYTES;
         let txnum = p.get_int(txnum_pos);
-        let filename_pos = txnum_pos + 4;
+        let filename_pos = txnum_pos + INTEGER_BYTES;
 
         let file_name = p.get_string(filename_pos);
         let blknum_pos = filename_pos + Page::max_len(file_name.len());
         let blk_num = p.get_int(blknum_pos);
 
-        let offset_pos = blknum_pos + 4;
+        let offset_pos = blknum_pos + INTEGER_BYTES;
         let offset = p.get_int(offset_pos);
-        let value_pos = offset_pos + 4;
+        let value_pos = offset_pos + INTEGER_BYTES;
         let val = p.get_string(value_pos);
 
         Self {
@@ -56,11 +57,11 @@ impl SetStringRecord {
         offset: u32,
         val: String,
     ) -> std::io::Result<u32> {
-        let txnum_pos = 4;
-        let filename_pos = txnum_pos + 4;
+        let txnum_pos = INTEGER_BYTES;
+        let filename_pos = txnum_pos + INTEGER_BYTES;
         let blknum_pos = filename_pos + Page::max_len(block.filename().len());
-        let offset_pos = blknum_pos + 4;
-        let value_pos = offset_pos + 4;
+        let offset_pos = blknum_pos + INTEGER_BYTES;
+        let value_pos = offset_pos + INTEGER_BYTES;
 
         let reclen = value_pos + Page::max_len(val.len());
 

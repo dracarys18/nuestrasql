@@ -1,4 +1,7 @@
-use crate::disk::{block::Block, manager::Manager, page::Page};
+use crate::{
+    consts::INTEGER_BYTES,
+    disk::{block::Block, manager::Manager, page::Page},
+};
 use std::sync::Arc;
 
 pub struct LogManager {
@@ -58,9 +61,9 @@ impl LogManager {
         let data_size = data.len();
 
         // 4 bytes to store the length of the page and rest for the data
-        let total_bytes_needed = data_size as i32 + 4;
+        let total_bytes_needed = (data_size + INTEGER_BYTES) as i32;
 
-        if plen - total_bytes_needed < 4 {
+        if plen - total_bytes_needed < INTEGER_BYTES as i32 {
             self.flush_impl(self.latest_seq)?;
             self.block = Self::append_new_block(&mut self.log_page, &self.fm, &self.logfile)?;
             plen = self.log_page.get_int(0);
@@ -144,7 +147,7 @@ impl Iterator for LogManagerIterator {
             self.move_to_block(&block).ok()?;
         }
         let data = self.page.get_bytes(self.current_pos);
-        self.current_pos += data.len() + 4;
+        self.current_pos += data.len() + INTEGER_BYTES;
 
         Some(data.to_vec())
     }

@@ -6,6 +6,12 @@ pub enum DbError {
     IoError(#[from] std::io::Error),
     #[error("Value from Option was invalid")]
     InvalidValue,
+    #[error("Cannot find the field in the schema")]
+    SchemaFieldNotFound,
+    #[error("Offsets were available")]
+    OffsetNotFound,
+    #[error("Not slot were available")]
+    SlotNotFound,
 }
 
 pub type DbResult<T> = Result<T, DbError>;

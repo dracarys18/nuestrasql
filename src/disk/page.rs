@@ -1,4 +1,5 @@
 use super::cursor::SimpleBytesCursor;
+use crate::consts::INTEGER_BYTES;
 
 const MAX_BYTES_PER_CHAR: usize = 1;
 
@@ -33,14 +34,14 @@ impl Page {
         self.blob.set_position(offset);
 
         self.blob.set_i32(val);
-        self.size += 4;
+        self.size += INTEGER_BYTES;
     }
 
     pub fn get_bytes(&mut self, offset: usize) -> &[u8] {
         self.blob.set_position(offset);
 
         let length = self.blob.get_i32();
-        &self.blob[offset + 4..offset + 4 + length as usize]
+        &self.blob[offset + INTEGER_BYTES..offset + INTEGER_BYTES + length as usize]
     }
 
     pub fn set_bytes(&mut self, offset: usize, data: &[u8]) {
@@ -48,7 +49,7 @@ impl Page {
         self.blob.set_i32(data.len() as i32);
         self.blob.set_slice(data);
 
-        self.size += 4 + data.len();
+        self.size += INTEGER_BYTES + data.len();
     }
 
     pub fn get_string(&mut self, offset: usize) -> String {
@@ -65,7 +66,7 @@ impl Page {
     }
 
     pub fn max_len(len: usize) -> usize {
-        4 + len * MAX_BYTES_PER_CHAR
+        INTEGER_BYTES + len * MAX_BYTES_PER_CHAR
     }
 
     pub fn size(&self) -> usize {

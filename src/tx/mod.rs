@@ -7,12 +7,14 @@ mod test;
 use crate::{
     bufferpool::pool::BufferPoolManager,
     disk::{block::Block, manager::Manager},
-    error::DbResult,
+    error::{DbError, DbResult},
     log::manager::LogManager,
     tx::recovery::recovery_mgr::RecoveryManager,
     utils::safe_lock::SafeLock,
 };
 use std::sync::{atomic::AtomicU32, Arc, Mutex};
+
+static END_OF_FILE: u64 = u64::MAX;
 
 static NEXT_TRANSACTION_ID: AtomicU32 = AtomicU32::new(0);
 
@@ -170,5 +172,16 @@ impl Transactions {
         buffer.set_modified(self.txnum as i32, lsn);
 
         Ok(())
+    }
+
+    pub fn append(&mut self, filename: String) -> DbResult<Block> {
+        let blk = Block::new(filename.clone(), END_OF_FILE);
+        self.concurrency.xlock(&blk)?;
+
+        self.file_mgr.append(&filename).map_err(DbError::IoError)
+    }
+
+    pub fn blocksize(&self) -> u64 {
+        self.file_mgr.blocksize()
     }
 }
