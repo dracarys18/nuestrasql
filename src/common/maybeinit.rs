@@ -1,4 +1,4 @@
-// Kind of slim-version of RecordPage to allow late initialization.
+// Wrapper enum to allow late initialization.
 pub(crate) enum MaybeInit<T> {
     Init(T),
     NoInit,
