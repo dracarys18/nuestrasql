@@ -27,6 +27,7 @@ impl BufferList {
     }
 
     pub fn get_buffer(&self, blk: &Block) -> DbResult<usize> {
+        println!("Blk num {}", blk.num());
         self.buffers.get(blk).cloned().ok_or(DbError::InvalidValue)
     }
 

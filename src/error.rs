@@ -12,6 +12,10 @@ pub enum DbError {
     OffsetNotFound,
     #[error("Not slot were available")]
     SlotNotFound,
+    #[error("Record page not set")]
+    RecordPageNotSet,
+    #[error("Unexpected Error")]
+    Unexpected,
 }
 
 pub type DbResult<T> = Result<T, DbError>;

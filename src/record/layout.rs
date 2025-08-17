@@ -1,4 +1,6 @@
 use super::schema::{FieldType, Schema};
+use std::sync::Arc;
+
 use crate::{
     consts::INTEGER_BYTES,
     disk::page::Page,
@@ -7,10 +9,15 @@ use crate::{
 
 use std::collections::HashMap;
 
-pub(crate) struct Layout {
+struct LayoutInner {
     schema: Schema,
     offsets: HashMap<String, usize>,
     slot_size: usize,
+}
+
+#[derive(Clone)]
+pub struct Layout {
+    inner: Arc<LayoutInner>,
 }
 
 impl Layout {
@@ -27,9 +34,11 @@ impl Layout {
             .collect::<DbResult<HashMap<String, usize>>>()?;
 
         Ok(Self {
-            offsets,
-            schema,
-            slot_size: pos,
+            inner: Arc::new(LayoutInner {
+                offsets,
+                schema,
+                slot_size: pos,
+            }),
         })
     }
 
@@ -39,25 +48,28 @@ impl Layout {
         slot_size: usize,
     ) -> Self {
         Self {
-            slot_size,
-            offsets,
-            schema,
+            inner: Arc::new(LayoutInner {
+                offsets,
+                schema,
+                slot_size,
+            }),
         }
     }
 
     pub fn schema(&self) -> &Schema {
-        &self.schema
+        &self.inner.schema
     }
 
-    pub fn offset(&self, field_name: &String) -> DbResult<usize> {
-        self.offsets
+    pub fn offset(&self, field_name: &str) -> DbResult<usize> {
+        self.inner
+            .offsets
             .get(field_name)
             .copied()
             .ok_or(DbError::OffsetNotFound)
     }
 
     pub fn slot_size(&self) -> usize {
-        self.slot_size
+        self.inner.slot_size
     }
 
     pub fn length_in_bytes(schema: &Schema, field_name: &String) -> DbResult<usize> {

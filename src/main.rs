@@ -1,6 +1,7 @@
 #![allow(dead_code)]
 
 pub mod bufferpool;
+pub mod common;
 pub mod consts;
 pub mod disk;
 pub mod error;

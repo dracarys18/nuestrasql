@@ -44,7 +44,7 @@ impl Schema {
         Ok(())
     }
 
-    pub fn typ(&self, field_name: &String) -> DbResult<FieldType> {
+    pub fn typ(&self, field_name: &str) -> DbResult<FieldType> {
         self.info
             .get(field_name)
             .ok_or(DbError::SchemaFieldNotFound)
@@ -65,8 +65,8 @@ impl Schema {
         Ok(())
     }
 
-    pub fn has_field(&self, field_name: &String) -> bool {
-        self.fields.contains(field_name)
+    pub fn has_field(&self, field_name: &str) -> bool {
+        self.fields.contains(&field_name.to_string())
     }
 
     pub fn fields(&self) -> &[String] {

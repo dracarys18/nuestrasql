@@ -93,7 +93,7 @@ mod tests {
     }
 
     fn print_values(fm: Arc<Manager>, message: &str, blk0: &Block, blk1: &Block) {
-        println!("{}", message);
+        println!("{message}");
         let mut p0 = Page::new(fm.blocksize());
         let mut p1 = Page::new(fm.blocksize());
 

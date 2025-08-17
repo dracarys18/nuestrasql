@@ -28,7 +28,7 @@ pub struct Transactions {
     concurrency: concurrency::ConcurrencyManager,
     bm: Arc<Mutex<BufferPoolManager>>,
     txnum: u32,
-    buffer: bufferlist::BufferList,
+    buffer: Arc<Mutex<bufferlist::BufferList>>,
     recovery_mgr: RecoveryManager,
 }
 
@@ -46,7 +46,7 @@ impl Transactions {
             bm: bm.clone(),
             txnum,
             recovery_mgr: RecoveryManager::new(txnum as i32, lm.clone(), bm.clone())?,
-            buffer: bufferlist::BufferList::new(bm.clone()),
+            buffer: Arc::new(Mutex::new(bufferlist::BufferList::new(bm.clone()))),
         };
 
         txn.init();
@@ -66,11 +66,11 @@ impl Transactions {
     }
 
     pub fn pin(&mut self, block: &Block) -> DbResult<()> {
-        self.buffer.pin(block)
+        self.buffer.safe_lock().pin(block)
     }
 
     pub fn unpin(&mut self, block: &Block) -> DbResult<()> {
-        self.buffer.unpin(block)
+        self.buffer.safe_lock().unpin(block)
     }
 
     pub fn commit(&mut self) -> DbResult<()> {
@@ -79,7 +79,7 @@ impl Transactions {
         println!("transaction {} committed", self.txnum);
         self.concurrency.release()?;
 
-        self.buffer.unpin_all()?;
+        self.buffer.safe_lock().unpin_all()?;
 
         Ok(())
     }
@@ -90,7 +90,7 @@ impl Transactions {
         println!("transaction {} rolled back", self.txnum);
         self.concurrency.release()?;
 
-        self.buffer.unpin_all()?;
+        self.buffer.safe_lock().unpin_all()?;
 
         Ok(())
     }
@@ -105,7 +105,7 @@ impl Transactions {
     pub fn get_int(&mut self, block: &Block, offset: u32) -> DbResult<i32> {
         self.concurrency.slock(block)?;
 
-        let buffer = self.buffer.get_buffer(block)?;
+        let buffer = self.buffer.safe_lock().get_buffer(block)?;
         let mut bm = self.bm.safe_lock();
         let buffer = bm.get_buffer_mut(buffer);
 
@@ -115,7 +115,7 @@ impl Transactions {
     pub fn get_string(&mut self, block: &Block, offset: u32) -> DbResult<String> {
         self.concurrency.slock(block)?;
 
-        let buffer = self.buffer.get_buffer(block)?;
+        let buffer = self.buffer.safe_lock().get_buffer(block)?;
         let mut bm = self.bm.safe_lock();
         let buffer = bm.get_buffer_mut(buffer);
 
@@ -131,7 +131,7 @@ impl Transactions {
     ) -> DbResult<()> {
         self.concurrency.xlock(block)?;
 
-        let buffer = self.buffer.get_buffer(block)?;
+        let buffer = self.buffer.safe_lock().get_buffer(block)?;
         let mut bm = self.bm.safe_lock();
 
         let buffer = bm.get_buffer_mut(buffer);
@@ -156,7 +156,7 @@ impl Transactions {
     ) -> DbResult<()> {
         self.concurrency.xlock(block)?;
 
-        let buffer = self.buffer.get_buffer(block)?;
+        let buffer = self.buffer.safe_lock().get_buffer(block)?;
         let mut bm = self.bm.safe_lock();
 
         let buffer = bm.get_buffer_mut(buffer);
@@ -172,6 +172,17 @@ impl Transactions {
         buffer.set_modified(self.txnum as i32, lsn);
 
         Ok(())
+    }
+
+    /// Return the number of blocks in the specified file.
+    /// This method first obtains an SLock on the
+    /// "end of the file", before asking the file manager
+    /// to return the file size.
+    pub fn size(&mut self, filename: String) -> DbResult<u64> {
+        let blk = Block::new(filename.clone(), END_OF_FILE);
+        self.concurrency.slock(&blk)?;
+
+        self.file_mgr.size(&filename).map_err(DbError::IoError)
     }
 
     pub fn append(&mut self, filename: String) -> DbResult<Block> {

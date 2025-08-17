@@ -5,6 +5,7 @@ mod tests {
     use rand::{distr::Uniform, prelude::Distribution};
 
     use crate::{
+        common::slot::Slot,
         record::{layout::Layout, record_page::RecordPage, schema::Schema},
         server::{DBServer, DBServerOptions},
     };
@@ -38,43 +39,44 @@ mod tests {
         let mut rp = RecordPage::new(tx.clone(), blk.clone(), layout);
         rp.format().unwrap();
 
-        let mut slot = rp.insert_after(0);
+        let mut slot = rp.insert_after(Slot::uninit()).unwrap();
         let mut rng = rand::rng();
         let die = Uniform::new(0, 50).unwrap();
-        while let Ok(s) = slot {
+        while slot.is_init() {
             let n = die.sample(&mut rng);
-            rp.set_int(s, &String::from("A"), n).unwrap();
-            rp.set_string(s, &String::from("B"), format!("rec{n}"))
+            rp.set_int(slot, &String::from("A"), n).unwrap();
+            rp.set_string(slot, &String::from("B"), format!("rec{n}"))
                 .unwrap();
-            assert!(s <= 18);
+            assert!(slot <= 18.into());
             assert!((0..50).contains(&n));
-            slot = rp.insert_after(slot.unwrap());
+            slot = rp.insert_after(slot).unwrap();
         }
 
         let mut count = 0;
-        slot = rp.next_after(0);
-        while let Ok(s) = slot {
-            let a = rp.get_int(s, &String::from("A")).unwrap();
-            let b = rp.get_string(s, &String::from("B")).unwrap();
+        slot = rp.next_after(0.into()).unwrap();
+        while slot.is_init() {
+            let a = rp.get_int(slot, &String::from("A")).unwrap();
+            let b = rp.get_string(slot, &String::from("B")).unwrap();
             if a < 25 {
                 count += 1;
-                assert!(s <= 18);
+                assert!(slot <= 18.into());
                 assert!(a < 25);
                 assert_eq!(format!("rec{a}"), b);
-                rp.delete(s).unwrap();
+                rp.delete(slot).unwrap();
             }
-            slot = rp.next_after(slot.unwrap());
+            slot = rp.next_after(slot).unwrap();
         }
         assert!((0..=18).contains(&count));
 
-        slot = rp.next_after(0);
-        while let Ok(s) = slot {
-            let a = rp.get_int(s, &String::from("A")).unwrap();
-            let b = rp.get_string(s, &String::from("B")).unwrap();
-            assert!(s <= 18);
+        slot = rp.next_after(0.into()).unwrap();
+
+        while slot.is_init() {
+            let a = rp.get_int(slot, &String::from("A")).unwrap();
+            let b = rp.get_string(slot, &String::from("B")).unwrap();
+            assert!(slot <= 18.into());
             assert!(a >= 25);
             assert_eq!(format!("rec{a}"), b);
-            slot = rp.next_after(slot.unwrap());
+            slot = rp.next_after(slot).unwrap();
         }
         tx.unpin(&blk).unwrap();
         tx.commit().unwrap();
