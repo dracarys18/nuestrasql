@@ -1,6 +1,6 @@
 use crate::{
-    bufferpool::pool::BufferPoolManager, disk::manager::Manager, error::DbResult,
-    log::manager::LogManager, tx::Transactions,
+    error::DbResult, storage::bufferpool::pool::BufferPoolManager, storage::disk::manager::Manager,
+    storage::log::manager::LogManager, storage::tx::Transactions,
 };
 use std::sync::{Arc, Mutex};
 

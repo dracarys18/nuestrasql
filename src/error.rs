@@ -14,6 +14,10 @@ pub enum DbError {
     SlotNotFound,
     #[error("Record page not set")]
     RecordPageNotSet,
+    #[error("Table not found: {table_name}")]
+    TableNotFound { table_name: String },
+    #[error("View not found: {0}")]
+    ViewNotFound(String),
     #[error("Unexpected Error")]
     Unexpected,
 }
